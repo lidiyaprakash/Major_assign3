@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Force Layout Visualization</title>
-    <script src="./lib/d3.v7.js"></script>
+    <title>Force Layout Visualization of the Data</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Times New Roman', Calibri, impact, Arial, Georgia;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #b88383;
         }
-
-        #container {
+           #contentBox {
             display: flex;
             align-items: flex-end;
             position: relative;
@@ -30,16 +29,16 @@
             margin-right: 10px;
         }
 
-        #sideContainer {
+        #infoContainer {
             flex: 0 0 20%;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
         }
 
-        #topContainer,
-        #bottomContainer {
-            background-color: #fff;
+        #topinfo,
+        #bottominfo {
+            background-color: #908787;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -49,22 +48,22 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        #topContainer h2,
-        #bottomContainer h2 {
+        #topinfo2,
+        #bottominfo2 {
             color: #333;
             margin-bottom: 10px;
             font-size: 1.2em;
         }
 
-        #topContainer p,
-        #bottomContainer p {
+        #topinfo3,
+        #bottominfo3{
             color: #555;
             line-height: 1.5;
         }
 
-        #topContainer button,
-        #bottomContainer button {
-            background-color: #4CAF50;
+        #topinfo button,
+        #bottominfo button {
+            background-color: #4c53af;
             color: white;
             padding: 10px 15px;
             border: none;
@@ -74,45 +73,43 @@
             transition: background-color 0.3s ease;
         }
 
-        #topContainer button:hover,
-        #bottomContainer button:hover {
-            background-color: #45a049;
+        #topinfo button:hover,
+        #bottominfo button:hover {
+            background-color: #293329;
         }
     </style>
-
-
 </head>
 <body>
-
-<div id="container">
-    <div id="visualization">
-        <!-- Your visualization content goes here -->
-        <svg id="visualization" viewBox="-200 50 3200 2200" style="align-content: center"></svg>
-
+    <div class="container">
+       <i><h2>MAJOR ASSIGNMENT 3</h2></i>
     </div>
-    <div id="sideContainer">
-        <div id="topContainer">
 
-            <h3>Author Details</h3>
-            <p id="authorName"></p>
-            <p id="authorCountry"></p>
-            <p id="authorTitle"></p>
-            <p id="authorYear"></p>
-        </div>
-        <div id="bottomContainer">
+<div id="contentBox">
+    <div id="visualization">
+    <svg id="visualization" viewBox="-200 50 3200 2200" style="align-content: center"></svg>
+    </div>
+    <div id="infoContainer">
+    <div id="topinfo">
+      <h3>Author Information</h3>
+        <p id="Nameoftheauthor"></p>
+        <p id="Countryoftheauthor"></p>
+        <p id="Titleofauthor"></p>
+        <p id="Yearoftheauthor"></p>
+     </div>
+        <div id="bottominfo">
             <form id="controlForm">
-                <label>Link Strength:</label>
-                <input type="number" id="linkStrength" value="" min="0" step="0.1"><br>
+                <label>Strength of link:</label>
+                <input type="number" id="customlinkStrength" value="" min="0" step="0.1"><br>
 
-                <label>Collide Force:</label>
-                <input type="number" id="collideForce" value="" min="0" step="1"><br>
+                <label>Collision Force:</label>
+                <input type="number" id="customcollideForce" value="" min="0" step="1"><br>
 
                 <label>Charge Force:</label>
-                <input type="number" id="chargeForce" value="" step="1"><br>
+                <input type="number" id="customchargeForce" value="" step="1"><br>
 
                 <label>Node Size:</label>
-                <input type="radio" name="nodeSize" value="citations" checked> Number of Citations
-                <input type="radio" name="nodeSize" value="publications"> Number of Publications
+                <input type="radio" name="nodeSize" value="citations" checked> Number of Citation 
+                <input type="radio" name="nodeSize" value="publications"> Number of Publications 
                 <input type="radio" name="nodeSize" value="degree"> Degree<br>
 
                 <button type="button" onclick="submitForm()">Submit</button>
@@ -121,107 +118,101 @@
     </div>
 </div>
 <script>
-    d3.select("#linkStrength").property("value", "1").dispatch("input")
-    d3.select("#collideForce").property("value", "25").dispatch("input")
-    d3.select("#chargeForce").property("value", "-3").dispatch("input")
-    let strengthValue = parseFloat(d3.select("#linkStrength").property("value"))
-    let collideValue = parseFloat(d3.select("#collideForce").property("value"))
-    let chargeValue = parseFloat(d3.select("#chargeForce").property("value"))
-    let selectedValue = d3.select('input[name="nodeSize"]:checked').node().value;
+    d3.select("#customlinkStrength").property("value", "1").dispatch("input")
+    d3.select("#customcollideForce").property("value", "25").dispatch("input")
+    d3.select("#customchargeForce").property("value", "-3").dispatch("input")
+    let linkstrengthinput = parseFloat(d3.select("#customlinkStrength").property("value"))
+    let collideforceinput = parseFloat(d3.select("#customcollideForce").property("value"))
+    let chargeforceinput = parseFloat(d3.select("#customchargeForce").property("value"))
+    let selectedNodesize = d3.select('input[name="nodeSize"]:checked').node().value;
     upgrade()
 
     function submitForm() {
         d3.select("#visualization svg").selectAll("*").remove();
-        d3.select("#linkStrength").on("input", function () {
-            const value = parseFloat(this.value);
-            console.log(value)
-            if(strengthValue>=0 && strengthValue<=1) {
-                strengthValue = isNaN(value) ? 1 : value;
+        d3.select("#customlinkStrength").on("input", function () {
+            const inputvalue   = parseFloat(this.value);
+            console.log(inputvalue )
+            if(linkstrengthinput>=0 && linkstrengthinput<=1) {
+                linkstrengthinput = isNaN(inputvalue ) ? 1 : inputvalue ;
             }
             else
             {
-                strengthValue = 1;
+                linkstrengthinput = 1;
             }
-            //upgrade();
+            
         })
 
-        d3.select("#collideForce").on("input", function () {
-            const value = parseFloat(this.value);
-            collideValue = isNaN(value) ? 25 : value;
+        d3.select("#customcollideForce").on("input", function () {
+            const inputvalue = parseFloat(this.value);
+            collideforceinput = isNaN(inputvalue) ? 25 : inputvalue;
 
-            //upgrade();
+            
         })
 
-        d3.select("#chargeForce").on("input", function () {
-            const value = parseFloat(this.value);
-            chargeValue = isNaN(value) ? -3 : value;
-            //upgrade();
+        d3.select("#customchargeForce").on("input", function () {
+            const inputvalue = parseFloat(this.value);
+            chargeforceinput = isNaN(inputvalue) ? -3 : inputvalue;
+            
         })
-        //updateNodeSize(selectedValue);
-        selectedValue = d3.select('input[name="nodeSize"]:checked').node().value;
+        selectedNodesize = d3.select('input[name="nodeSize"]:checked').node().value;
         console.log(0)
-
         upgrade();
-
-    }
-
+      }
     function upgrade() {
-        d3.json("coauthorshipdata.json").then(function (data) {
-            const nodes = data.nodes;
-            const edges = data.links;
+        d3.json("https://raw.githubusercontent.com/lidiyaprakash/majorassignment_3/main/coauthorshipdata.json").then(function (data) {
+            const datanodes = data.nodes;
+            const dataedges = data.links;
             console.log("start")
 
-            const svg = d3.select("#visualization svg");
-            const width = parseInt(svg.attr("viewBox").split(" ")[2]);
-            console.log("width:", width)
-            const height = parseInt(svg.attr("viewBox").split(" ")[3]);
+            const visualizationsvg = d3.select("#visualization svg");
+            const svgwidth = parseInt(visualizationsvg.attr("viewBox").split(" ")[2]);
+            console.log("width:", svgwidth)
+            const svgheight = parseInt(visualizationsvg.attr("viewBox").split(" ")[3]);
 
-            const zoom = d3.zoom()
+            const zoomhandler = d3.zoom()
                 .scaleExtent([1, 8])
-                .on("zoom", zoomed);
+                .on("zoom", handledzoom);
 
-            svg.call(zoom);
+            visualizationsvg.call(zoomhandler);
 
-            const main_group = svg.append("g")
+            const mainGroup = visualizationsvg.append("g")
                 .attr("transform", "translate(${width * 0.1},${height * 0.1}) scale(1.6)");
 
-
             const chargeForce = d3.forceManyBody()
-                .strength(chargeValue);
+                .strength(chargeforceinput);
 
-            const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(edges).id(d => d.id).strength(strengthValue))
+            const simulation = d3.forceSimulation(datanodes)
+                .force("link", d3.forceLink(dataedges).id(d => d.id).strength(linkstrengthinput))
                 .force("charge", chargeForce)
-                .force("collide", d3.forceCollide(collideValue))
-                .force("center", d3.forceCenter(width / 2, height / 2));
+                .force("collide", d3.forceCollide(collideforceinput))
+                .force("center", d3.forceCenter(svgwidth / 2, svgheight / 2));
 
             const nodeSize = d3.scaleSqrt()
-                .domain([0, d3.max(nodes, d => d.citations * 1)])
+                .domain([0, d3.max(datanodes, d => d.citations * 1)])
                 .range([4, 20]);
 
-            const link = main_group.selectAll(".link")
-                .data(edges)
+            const linkSelection = mainGroup.selectAll(".link")
+                .data(dataedges)
                 .enter().append("line")
                 .attr("class", "link")
                 .style("stroke", "grey")
                 .attr("stroke-width", 1.5);
 
-            const numberOfColors = 50;
-            const viridisColors = Array.from({ length: numberOfColors }, (d, i) => d3.interpolateViridis(i / (numberOfColors - 1)));
-            const colorScale = d3.scaleOrdinal(viridisColors);
+            const numberof_colors = 50;
+            const CustomColors = Array.from({ length: numberof_colors }, (d, i) => d3.interpolateViridis(i / (numberof_colors - 1)));
+            const colorScaling = d3.scaleOrdinal(CustomColors);
 
-
-            const node = main_group.selectAll(".node")
-                .data(nodes)
+             const node = mainGroup.selectAll(".node")
+                .data(datanodes)
                 .enter().append("circle")
                 .attr("class", "node")
                 //.attr("r", d=>nodeSize(d.citations))
-                .attr("fill", d => colorScale(d.country))
+                .attr("fill", d => colorScaling(d.country))
                 .style("pointer-events", "all")
                 .call(d3.drag()
-                    .on("start", dragstarted)
-                    .on("drag", dragged)
-                    .on("end", dragended));
+                    .on("start", startnodedrag)
+                    .on("drag", Nodedrag)
+                    .on("end", endnodeDrag));
             node.append("text")
                 .attr("dx", 8)
                 .attr("dy", ".35em")
@@ -230,46 +221,46 @@
                     //console.log(d.authors)
                     return d.authors})
                 .attr("text-anchor","middle");
-            let scale;
-            if (selectedValue === "publications") {
-                // Calculate the number of publications for each author
-                const authorPublicationsMap = new Map();
+            let nodesize_scale;
+            if (selectedNodesize === "publications") {
+                
+                const authorPublicationsCountMap = new Map();
 
-                nodes.forEach(node => {
+                datanodes.forEach(node => {
                     const authors = node.authors.split(';');
                     authors.forEach(author => {
-                        const trimmedAuthor = author.trim();
-                        authorPublicationsMap.set(trimmedAuthor, (authorPublicationsMap.get(trimmedAuthor) || 0) + 1);
+                        const FormattedAuthor = author.trim();
+                        authorPublicationsCountMap.set(FormattedAuthor, (authorPublicationsCountMap.get(FormattedAuthor) || 0) + 1);
                     });
                 });
 
-                // Create a scale based on the number of publications
-                scale = d3.scaleSqrt()
-                    .domain([0, d3.max(Array.from(authorPublicationsMap.values()))])
+                
+                nodesize_scale = d3.scaleSqrt()
+                    .domain([0, d3.max(Array.from(authorPublicationsCountMap.values()))])
                     .range([4, 20]);
 
-                // Update node sizes based on the number of publications for each author
+                
                 node.transition().duration(500)
                     .attr("r", d => {
                         const authors = d.authors.split(';');
                         let totalPublications = 0;
                         authors.forEach(author => {
-                            const trimmedAuthor = author.trim();
-                            totalPublications += authorPublicationsMap.get(trimmedAuthor) || 0;
+                            const FormattedAuthor = author.trim();
+                            totalPublications += authorPublicationsCountMap.get(FormattedAuthor) || 0;
                         });
-                        return scale(totalPublications);
+                        return nodesize_scale(totalPublications);
                     })
             }
-            else if(selectedValue==="degree")
+            else if(selectedNodesize==="degree")
             {
-                nodes.forEach(node => {
-                    // Calculate the degree based on the number of edges connected to the node
-                    node.degree = edges.filter(edge => edge.source === node.id || edge.target === node.id).length;
+                datanodes.forEach(node => {
+                   
+                    node.degree = dataedges.filter(edge => edge.source === node.id || edge.target === node.id).length;
                 });
-                //node.attr("r", d=>nodeSize(d.citations*2));
-                const maxDegree = d3.max(nodes, d => d.degree);
+                
+                const maxnodeDegree = d3.max(datanodes, d => d.degree);
                 const nodeSizeScale = d3.scaleSqrt()
-                    .domain([0, maxDegree])  // Use the max degree
+                    .domain([0, maxnodeDegree])  
                     .range([4, 10]);
                 node.attr("r", d => nodeSizeScale(d.degree));
             }
@@ -277,29 +268,29 @@
             {
                 node.attr("r", d=>nodeSize(d.citations))
             }
-            function zoomed(event) {
-                main_group.attr("transform", event.transform);
+            function handledzoom(event) {
+                mainGroup.attr("transform", event.transform);
             }
 
-            function dragstarted(event, d) {
+            function startnodedrag(event, d) {
                 if (!event.active) simulation.alphaTarget(0.3).restart();
                 d.fx = d.x;
                 d.fy = d.y;
             }
 
-            function dragged(event, d) {
+            function Nodedrag(event, d) {
                 d.fx = event.x;
                 d.fy = event.y;
             }
 
-            function dragended(event, d) {
+            function endnodeDrag(event, d) {
                 if (!event.active) simulation.alphaTarget(0);
                 d.fx = null;
                 d.fy = null;
             }
 
-            function ticked() {
-                link
+            function UpdateVisualization() {
+                linkSelection
                     .attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)
                     .attr("x2", d => d.target.x)
@@ -310,7 +301,7 @@
                     .attr("cy", d => d.y);
             }
 
-            simulation.on("tick", ticked);
+            simulation.on("tick", UpdateVisualization);
             // d3.select("#nodeSizeForm").on("change", function () {
             //     d3.event.preventDefault(); // Prevent the default form submission behavior
             //     const selectedValue = d3.select('input[name="nodeSize"]:checked').node().value;
@@ -321,54 +312,54 @@
             //     updateNodeSize(selectedValue);
             // });
             function updateNodeSize(criteria) {
-                let scale;
+                let scaleofnodeSize;
                 if (criteria === "publications") {
-                    // Calculate the number of publications for each author
-                    const authorPublicationsMap = new Map();
+                    // Calculating the number of publications for each author
+                    const authorPublicationscountMap = new Map();
 
-                    nodes.forEach(node => {
+                    datanodes.forEach(node => {
                         const authors = node.authors.split(';');
                         authors.forEach(author => {
-                            const trimmedAuthor = author.trim();
-                            authorPublicationsMap.set(trimmedAuthor, (authorPublicationsMap.get(trimmedAuthor) || 0) + 1);
+                            const FormattedAuthor = author.trim();
+                            authorPublicationscountMap.set(FormattedAuthor, (authorPublicationscountMap.get(FormattedAuthor) || 0) + 1);
                         });
                     });
 
-                    // Create a scale based on the number of publications
-                    scale = d3.scaleSqrt()
-                        .domain([0, d3.max(Array.from(authorPublicationsMap.values()))])
+                    
+                    scaleofnodeSize = d3.scaleSqrt()
+                        .domain([0, d3.max(Array.from(authorPublicationscountMap.values()))])
                         .range([4, 20]);
 
-                    // Update node sizes based on the number of publications for each author
+          
                     node.transition().duration(500)
                         .attr("r", d => {
                             const authors = d.authors.split(';');
                             let totalPublications = 0;
                             authors.forEach(author => {
-                                const trimmedAuthor = author.trim();
-                                totalPublications += authorPublicationsMap.get(trimmedAuthor) || 0;
+                                const FormattedAuthor = author.trim();
+                                totalPublications += authorPublicationscountMap.get(FormattedAuthor) || 0;
                             });
-                            return scale(totalPublications);
+                            return scaleofnodeSize(totalPublications);
                         })
                         .on("end", () => simulation.alpha(1).restart());
                 } else {
-                    // Handle other criteria ("citations", "degree", etc.) similarly to your existing code
-                    scale = d3.scaleSqrt()
-                        .domain([0, d3.max(nodes, d => d[criteria] * 1)])
+                  
+                    scaleofnodeSize = d3.scaleSqrt()
+                        .domain([0, d3.max(datanodes, d => d[criteria] * 1)])
                         .range([4, 20]);
 
                     node.transition().duration(500)
-                        .attr("r", d => scale(d[criteria]))
+                        .attr("r", d => scaleofnodeSize(d[criteria]))
                         .on("end", () => simulation.alpha(1).restart());
                 }
             }
 
-            function showAuthorDetails(author) {
-                console.log(author)
-                d3.select("#authorName").text('Names: ' + author.authors);
-                d3.select("#authorCountry").text('Country: ' + author.country);
-                d3.select("#authorTitle").text('Title: ' + author.title);
-                d3.select("#authorYear").text('Year: ' + author.year);
+            function showAuthorDetails(selectedauthor) {
+                console.log(selectedauthor)
+                d3.select("#authorName").text('Names: ' + selectedauthor.authors);
+                d3.select("#authorCountry").text('Country: ' + selectedauthor.country);
+                d3.select("#authorTitle").text('Title: ' + selectedauthor.title);
+                d3.select("#authorYear").text('Year: ' + selectedauthor.year);
                 d3.select("#authorDetails").style("display", "block");
             }
 
